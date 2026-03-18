@@ -1,0 +1,25 @@
+# ─── OS ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Logs (global) ───────────────────────────────────
+*.log
+logs/
+
+# ─── Editor / IDE ────────────────────────────────────
+.idea/
+*.swp
+*.swo
+*.suo
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ─── Temp ────────────────────────────────────────────
+tmp/
+temp/
+.tmp/
+.temp/
