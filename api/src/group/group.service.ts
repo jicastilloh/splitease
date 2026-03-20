@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Group } from './entities/group.entity';
 import { Expense } from 'src/expense/entities/expense.entity';
+import { last } from 'rxjs';
 
 @Injectable()
 export class GroupService {
@@ -32,8 +33,25 @@ export class GroupService {
   }
 
 
-  findAll() {
-    return `This action returns all group`;
+  async findAll(page = 1, limit = 10) {
+
+    const take = Math.min(limit, 10);
+    const skip = (page - 1) * take;
+ 
+    const [items, total] = await this.groupRepository.findAndCount({
+      skip,
+      take,
+      relations: ['members', 'createdBy'],
+    });
+
+    return {
+      data:items, 
+      meta:{ total,
+        page,
+        limit: take,
+        lastPage: Math.ceil(total / take)
+       } };
+
   }
 
   async findOne(id: string) {

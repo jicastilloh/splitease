@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -9,6 +9,7 @@ import { AdminGuard } from 'src/auth/Guards/admin.guard';
 import { JwtAuthGuard } from 'src/auth/Guards/jwt-auth.guard';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import { MemberGuard } from 'src/auth/Guards/member.guard';
+import { PaginationGroupDto } from './dto/pagination-group.dto';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('access-token')
@@ -30,8 +31,9 @@ export class GroupController {
 
   @Get()
   @UseGuards(JwtAuthGuard, MemberGuard)
-  findAll() {
-    return this.groupService.findAll();
+  findAll(@Query() pagination: PaginationGroupDto) {
+    const { page = 1, limit = 10 } = pagination;
+    return this.groupService.findAll(page, limit);
   }
 
   @Get(':id')
