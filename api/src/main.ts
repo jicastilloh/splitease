@@ -10,16 +10,13 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
 
   const config = new DocumentBuilder()
-  .setTitle('Split Ease API')
-  .setDescription('API para gestionar usuarios')
-  .setVersion('1.0')
-  .addTag('users')
-  .addBearerAuth(
-    { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-    'access-token',
-  )
-  .build();
-  
+    .setTitle('Split Ease API')
+    .setDescription('API para gestionar usuarios')
+    .setVersion('1.0')
+    .addTag('users')
+    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'access-token')
+    .build();
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 

@@ -24,7 +24,7 @@ export class GroupService {
     const savedGroup = await this.groupRepository.save(group);
 
     await this.groupMemberRepository.save({
-      userId:createdById ,
+      userId: createdById,
       groupId: savedGroup.id,
       role: GroupMemberRole.ADMIN,
     });
@@ -32,12 +32,10 @@ export class GroupService {
     return savedGroup;
   }
 
-
   async findAll(page = 1, limit = 10) {
-
     const take = Math.min(limit, 10);
     const skip = (page - 1) * take;
- 
+
     const [items, total] = await this.groupRepository.findAndCount({
       skip,
       take,
@@ -45,13 +43,9 @@ export class GroupService {
     });
 
     return {
-      data:items, 
-      meta:{ total,
-        page,
-        limit: take,
-        lastPage: Math.ceil(total / take)
-       } };
-
+      data: items,
+      meta: { total, page, limit: take, lastPage: Math.ceil(total / take) },
+    };
   }
 
   async findOne(id: string) {
@@ -75,15 +69,14 @@ export class GroupService {
   }
 
   async remove(id: string) {
-  const group = await this.groupRepository.findOne({ where: { id } });
-  if (!group) throw new NotFoundException('Group not found');
+    const group = await this.groupRepository.findOne({ where: { id } });
+    if (!group) throw new NotFoundException('Group not found');
 
-  const expenseCount = await this.expenseRepository.count({ where: { group: { id } } });
-  if (expenseCount > 0) {
-    throw new BadRequestException('Cannot delete group with active expenses');
+    const expenseCount = await this.expenseRepository.count({ where: { group: { id } } });
+    if (expenseCount > 0) {
+      throw new BadRequestException('Cannot delete group with active expenses');
+    }
+
+    return this.groupRepository.remove(group);
   }
-
-  return this.groupRepository.remove(group);
 }
-
-  }

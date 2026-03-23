@@ -8,9 +8,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { Expense } from 'src/expense/entities/expense.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Group, GroupMember, Expense]),
-    AuthModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Group, GroupMember, Expense]), AuthModule],
   controllers: [GroupController],
   providers: [GroupService],
 })

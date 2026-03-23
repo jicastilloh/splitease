@@ -9,52 +9,55 @@ import { JwtAuthGuard } from 'src/auth/Guards/jwt-auth.guard';
 import { AddMemberDto } from './dto/add-member.dto';
 import { AdminGuard } from 'src/auth/Guards/admin.guard';
 import { CurrentUser } from 'src/auth/current-user.decorator';
+import { MemberGuard } from 'src/auth/Guards/member.guard';
 
-@Controller('group-member')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth('access-token')
+@Controller('group/:groupId/members')
 export class GroupMemberController {
   constructor(private readonly groupMemberService: GroupMemberService) {}
 
   @Post()
+  @UseGuards(AdminGuard)
   @ApiCreatedResponse({
     description: 'The member has been successfully added to the group.',
     type: NewGroupMemberCreatedDto,
   })
   @ApiBadRequestResponse({ description: 'Bad Request', type: BadRequestGroupMemberCreateDto })
-  create(@Body() createGroupMemberDto: CreateGroupMemberDto) {
-    return this.groupMemberService.create(createGroupMemberDto);
-  }
-
-  @Post(':groupId/members')
-  @UseGuards(JwtAuthGuard, AdminGuard)
   addMember(
     @Param('groupId') groupId: string,
     @Body() dto: AddMemberDto,
     @CurrentUser() user: any,
   ) {
-  return this.groupMemberService.addMemberToGroup(
-    { ...dto, groupId },
-    user.id,
-  );
+    return this.groupMemberService.addMemberToGroup({ ...dto, groupId }, user.id);
   }
 
   @Get()
-  findAll() {
-    return this.groupMemberService.findAll();
+  @UseGuards(MemberGuard)
+  findAll(@Param('groupId') groupId: string) {
+    return this.groupMemberService.findAll(groupId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.groupMemberService.findOne(id);
+  @UseGuards(MemberGuard)
+  findOne(@Param('groupId') groupId: string, @Param('id') id: string) {
+    return this.groupMemberService.findOne(groupId, id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGroupMemberDto: UpdateGroupMemberDto) {
-    return this.groupMemberService.update(id, updateGroupMemberDto);
+  @UseGuards(AdminGuard)
+  update(
+    @Param('groupId') groupId: string,
+    @Param('id') id: string,
+    @Body() updateGroupMemberDto: UpdateGroupMemberDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.groupMemberService.update(groupId, id, user.id, updateGroupMemberDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.groupMemberService.remove(id);
+  @UseGuards(AdminGuard)
+  remove(@Param('groupId') groupId: string, @Param('id') id: string, @CurrentUser() user: any) {
+    return this.groupMemberService.remove(groupId, id, user.id);
   }
 }

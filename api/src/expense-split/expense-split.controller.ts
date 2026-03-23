@@ -19,13 +19,12 @@ export class ExpenseSplitController {
 
   @Get()
   @UseGuards(JwtAuthGuard, AdminGuard)
-
   findAll() {
     return this.expenseSplitService.findAll();
   }
 
   @Get(':id')
-   @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   findOne(@Param('id') id: string) {
     return this.expenseSplitService.findOne(+id);
   }

@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { GroupService } from './group.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -23,9 +33,7 @@ export class GroupController {
     type: NewGroupCreatedDto,
   })
   @ApiBadRequestResponse({ description: 'Bad Request', type: BadRequestGroupCreateDto })
-  create(
-    @Body() createGroupDto: CreateGroupDto,
-    @CurrentUser() user: {id: string}) {
+  create(@Body() createGroupDto: CreateGroupDto, @CurrentUser() user: { id: string }) {
     return this.groupService.create(createGroupDto, user.id);
   }
 

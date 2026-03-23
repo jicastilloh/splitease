@@ -32,7 +32,10 @@ export class Group {
   @ManyToOne(() => User, (user) => user.groups)
   createdBy: User;
 
-  @OneToMany(() => GroupMember, (groupMember) => groupMember.group, {cascade: true, onDelete: 'CASCADE'})
+  @OneToMany(() => GroupMember, (groupMember) => groupMember.group, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   members: GroupMember[];
 
   @OneToMany(() => Expense, (expense) => expense.group)

@@ -2,42 +2,44 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { ExpenseService } from './expense.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
-import { AdminGuard } from 'src/auth/Guards/admin.guard';
 import { JwtAuthGuard } from 'src/auth/Guards/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { MemberGuard } from 'src/auth/Guards/member.guard';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { AdminGuard } from 'src/auth/Guards/admin.guard';
 
-@Controller('expense')
+@Controller('groups/:groupId/expenses')
 @ApiBearerAuth('access-token')
+@UseGuards(JwtAuthGuard)
 export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  create(@Body() createExpenseDto: CreateExpenseDto) {
-    return this.expenseService.create(createExpenseDto);
+  @UseGuards(MemberGuard)
+  create(@Param('groupId') groupId: string, @CurrentUser() user: any, @Body() createExpenseDto: CreateExpenseDto) {
+    return this.expenseService.create(groupId, user.id, createExpenseDto);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  findAll() {
-    return this.expenseService.findAll();
+  findAll(@Param('groupId') groupId: string) {
+    return this.expenseService.findAll(groupId);
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  findOne(@Param('id') id: string) {
-    return this.expenseService.findOne(+id);
+  @UseGuards(MemberGuard)
+  findOne(@Param('groupId') groupId: string, @Param('id') id: string) {
+    return this.expenseService.findOne(groupId, id);
   }
 
   @Patch(':id')
-   @UseGuards(JwtAuthGuard, AdminGuard)
-  update(@Param('id') id: string, @Body() updateExpenseDto: UpdateExpenseDto) {
-    return this.expenseService.update(+id, updateExpenseDto);
+  @UseGuards(MemberGuard)
+    update(@Param('groupId') groupId: string, @Param('id') id: string, @CurrentUser() user: any, @Body() updateExpenseDto: UpdateExpenseDto) {
+      return this.expenseService.update(groupId, id, updateExpenseDto, user.id);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  remove(@Param('id') id: string) {
-    return this.expenseService.remove(+id);
+  @UseGuards(MemberGuard)
+  remove(@Param('groupId') groupId: string, @Param('id') id: string, @CurrentUser() user: any) {
+    return this.expenseService.remove(groupId, id, user.id);
   }
 }
