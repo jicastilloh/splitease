@@ -1,13 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { JwtAuthGuard } from './auth/Guards/jwt-auth.guard';
-import { Reflector } from '@nestjs/core';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const reflector = app.get(Reflector);
+  const logger = await app.resolve<Logger>(Logger);
+  app.useLogger(logger);
 
   const config = new DocumentBuilder()
     .setTitle('Split Ease API')
@@ -20,7 +19,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.useGlobalGuards(new JwtAuthGuard(new Reflector()));
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

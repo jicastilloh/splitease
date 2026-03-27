@@ -11,7 +11,7 @@ import { Group } from 'src/group/entities/group.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([GroupMember, Group])],
   controllers: [GroupMemberController],
-  exports: [GroupMemberService, MemberGuard, AdminGuard],
+  exports: [TypeOrmModule, GroupMemberService, MemberGuard, AdminGuard],
   providers: [GroupMemberService, MemberGuard, AdminGuard],
 })
 export class GroupMemberModule {}

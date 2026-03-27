@@ -1,36 +1,49 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, UseGuards } from '@nestjs/common';
 import { SettlementService } from './settlement.service';
 import { CreateSettlementDto } from './dto/create-settlement.dto';
-import { UpdateSettlementDto } from './dto/update-settlement.dto';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/Guards/jwt-auth.guard';
+import { MemberGuard } from 'src/auth/Guards/member.guard';
 
-@Controller('settlement')
+@Controller('groups/:groupId/settlements')
 @ApiBearerAuth('access-token')
+@ApiParam({ name: 'groupId', required: true, description: 'Group UUID' })
+@UseGuards(JwtAuthGuard, MemberGuard)
+@ApiTags('Settlements')
 export class SettlementController {
   constructor(private readonly settlementService: SettlementService) {}
 
+
   @Post()
-  create(@Body() createSettlementDto: CreateSettlementDto) {
-    return this.settlementService.create(createSettlementDto);
+  @ApiResponse({ status: 201, description: 'El asento ha sido creado exitosamente.' })
+  @ApiResponse({ status: 400, description: 'Solicitud incorrecta' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Grupo no encontrado' })
+  @ApiOperation({ summary: 'Crea un nuevo asiento de liquidación en un grupo' })
+  create(
+    @Param('groupId') groupId: string,
+    @Body() createSettlementDto: CreateSettlementDto,
+    @Req() req,
+  ) {
+    return this.settlementService.create(groupId, createSettlementDto, req.user.id);
   }
 
   @Get()
-  findAll() {
-    return this.settlementService.findAll();
+  @ApiResponse({ status: 200, description: 'Lista de asientos de liquidación obtenida exitosamente.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Grupo no encontrado' })
+  @ApiOperation({ summary: 'Obtiene todos los asientos de liquidación de un grupo' })
+  findByGroup(@Param('groupId') groupId: string) {
+    return this.settlementService.findByGroup(groupId);
   }
 
   @Get(':id')
+  @ApiResponse({ status: 200, description: 'Asiento de liquidación obtenido exitosamente.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Asiento de liquidación no encontrado' })
+  @ApiOperation({ summary: 'Obtiene un asiento de liquidación por ID' })
   findOne(@Param('id') id: string) {
-    return this.settlementService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSettlementDto: UpdateSettlementDto) {
-    return this.settlementService.update(+id, updateSettlementDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.settlementService.remove(+id);
+    return this.settlementService.findOne(id);
   }
 }
+
